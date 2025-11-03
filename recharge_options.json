@@ -112,7 +112,8 @@
     "price": 20
   },
   {
-  "diamonds": 170,
-    "price": 220
-  },
 
+{
+    "diamonds": "170 Diamonds",
+    "price": 220
+  }```
