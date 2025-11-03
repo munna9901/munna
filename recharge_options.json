@@ -108,12 +108,8 @@
     "price": 305
   },
   {
-    "diamonds": "Support!",
-    "price": 20
-  },
+    },
   {
-
-{
-    "diamonds": "170 Diamonds",
-    "price": 220
-  }```
+    "diamonds": 610,
+    "price": 450
+  },
