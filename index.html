@@ -80,8 +80,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // GitHub JSON file raw URL - এটি আপনার রিপোজিটরি থেকে লোড হবে
-            const jsonUrl = 'https://raw.githubusercontent.com/munna9901/Munna-Shop-Data/main/shop.json';
+            // ================== গুরুত্বপূর্ণ পরিবর্তন ==================
+            // GitHub-এর সঠিক Raw URL এখানে ব্যবহার করা হয়েছে।
+            const jsonUrl = 'https://raw.githubusercontent.com/munna9901/munna/main/shop.json';
+            // =========================================================
 
             const grid = document.getElementById('recharge-grid');
             const purchaseSection = document.getElementById('purchase-section');
@@ -109,7 +111,8 @@
             fetch(jsonUrl)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
+                        // নেটওয়ার্ক বা URL-এ সমস্যা হলে এখানে error দেখাবে
+                        throw new Error('Network response was not ok. Status: ' + response.status);
                     }
                     return response.json();
                 })
@@ -128,6 +131,7 @@
                     });
                 })
                 .catch(error => {
+                    // কোনো সমস্যা হলে ব্রাউজারের Console-এ বিস্তারিত error দেখা যাবে
                     console.error('There has been a problem with your fetch operation:', error);
                     grid.innerHTML = '<p class="text-red-500 col-span-2">Error loading products. Please try again later.</p>';
                 });
@@ -179,4 +183,4 @@
         });
     </script>
 </body>
-</html>```
+</html>
