@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munna Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #FF2D55 0%, #E60023 100%); }
+        .selected-item { border-color: #E60023 !important; background-color: #FFF0F3; }
+        .selected-item .price { background-color: #E60023; color: white; }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-gray-200 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-sm mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden relative" style="height: 800px;">
+        <div class="gradient-bg h-48 w-full absolute top-0 z-0 rounded-b-3xl"></div>
+        <div class="relative z-10 h-full flex flex-col">
+
+            <div class="flex justify-center pt-6 pb-4 flex-shrink-0">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                    <span class="text-2xl font-bold text-red-600">M</span>
+                </div>
+            </div>
+            <h1 class="text-center text-white text-2xl font-bold flex-shrink-0">Munna Shop</h1>
+
+            <div id="app-body" class="flex-grow bg-gray-100 mt-4 rounded-t-3xl p-4 flex flex-col overflow-y-auto">
+                <div class="mt-4 flex-shrink-0">
+                    <h3 class="font-bold text-gray-800 mb-2"><i class="fas fa-info-circle text-purple-600 mr-1"></i> Select Recharge</h3>
+                    <div id="recharge-grid" class="grid grid-cols-2 gap-3">
+                        <!-- Products will be loaded here from JSON -->
+                    </div>
+                </div>
+
+                <div id="purchase-section" class="mt-6 hidden flex-shrink-0">
+                    <h3 class="font-bold text-gray-800 mb-2">Complete Your Purchase</h3>
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                         <div>
+                            <label for="selected-item-name" class="text-sm font-medium text-gray-700">Selected Item</label>
+                            <input type="text" id="selected-item-name" class="w-full mt-1 p-2 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                        </div>
+                        <div class="mt-4">
+                            <label for="playerUID" class="text-sm font-medium text-gray-700">Player UID</label>
+                            <input type="text" id="playerUID" class="w-full mt-1 p-2 border border-gray-300 rounded-lg" placeholder="Enter your Player UID">
+                        </div>
+                        <div class="mt-4 bg-red-50 border border-red-200 p-3 rounded-lg text-center">
+                            <p class="text-sm text-gray-700">Please Send Money to this bKash number:</p>
+                            <p class="text-xl font-bold text-red-600 my-1">01918116107</p>
+                            <p class="text-sm text-gray-600">Amount to send: <strong id="purchase-amount" class="text-red-600"></strong></p>
+                        </div>
+                        <div class="mt-4">
+                            <label for="purchaseTrxId" class="text-sm font-medium text-gray-700">bKash Transaction ID (TrxID)</label>
+                            <input type="text" id="purchaseTrxId" class="w-full mt-1 p-2 border border-gray-300 rounded-lg" placeholder="e.g., 9X45GFA321">
+                        </div>
+                        <button id="buyNowBtn" class="w-full bg-red-600 text-white mt-4 py-3 rounded-lg font-bold hover:bg-red-700 transition-colors">Buy Now</button>
+                    </div>
+                </div>
+
+                <div id="purchase-success-message" class="hidden text-center py-8 bg-white rounded-xl shadow-sm mt-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-check-circle text-4xl text-green-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mt-4">Purchase Request Sent!</h3>
+                    <p class="text-gray-600 px-4">Your request has been received. Diamonds will be added shortly after verification.</p>
+                </div>
+            </div>
+
+            <div class="bg-white w-full p-2 grid grid-cols-4 gap-2 items-center rounded-b-3xl shadow-inner z-20 flex-shrink-0">
+                <a href="#" class="text-center text-gray-600 hover:text-red-600"><i class="fas fa-home text-xl"></i><span class="text-xs block">Home</span></a>
+                <a href="#" class="text-center text-gray-600 hover:text-red-600"><i class="fas fa-clipboard-list text-xl"></i><span class="text-xs block">My Orders</span></a>
+                <a href="#" class="text-center text-gray-600 hover:text-red-600"><i class="fas fa-qrcode text-xl"></i><span class="text-xs block">My Code</span></a>
+                <a href="#" class="text-center text-gray-600 hover:text-red-600"><i class="fas fa-wallet text-xl"></i><span class="text-xs block">Wallet</span></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // GitHub JSON file raw URL
+            const jsonUrl = 'https://raw.githubusercontent.com/munna9901/Munna-Shop-Data/main/shop.json';
+
+            const grid = document.getElementById('recharge-grid');
+            const purchaseSection = document.getElementById('purchase-section');
+            const purchaseAmount = document.getElementById('purchase-amount');
+            const selectedItemName = document.getElementById('selected-item-name');
+            const buyNowBtn = document.getElementById('buyNowBtn');
+            const purchaseSuccessMessage = document.getElementById('purchase-success-message');
+            const playerUIDInput = document.getElementById('playerUID');
+            const purchaseTrxIdInput = document.getElementById('purchaseTrxId');
+
+            let selectedProduct = null;
+
+            const showPurchaseSection = (product) => {
+                selectedProduct = product;
+                purchaseAmount.textContent = `BDT ${product.price}`;
+                selectedItemName.value = product.name;
+                purchaseSection.classList.remove('hidden');
+                purchaseSuccessMessage.classList.add('hidden');
+                setTimeout(() => {
+                    purchaseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            };
+
+            // Fetch data from GitHub
+            fetch(jsonUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(rechargeOptions => {
+                    rechargeOptions.forEach(option => {
+                        const item = document.createElement('div');
+                        item.className = 'recharge-item p-3 border-2 border-gray-200 rounded-xl cursor-pointer transition-all duration-200 text-center';
+                        item.innerHTML = `<p class="font-bold text-gray-800 text-sm">${option.name}</p><div class="price mt-2 inline-block bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full">৳ ${option.price}</div>`;
+                        
+                        item.addEventListener('click', () => {
+                            document.querySelectorAll('.recharge-item').forEach(el => el.classList.remove('selected-item'));
+                            item.classList.add('selected-item');
+                            showPurchaseSection(option);
+                        });
+                        grid.appendChild(item);
+                    });
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                    grid.innerHTML = '<p class="text-red-500 col-span-2">Error loading products. Please try again later.</p>';
+                });
+
+
+            buyNowBtn.addEventListener('click', () => {
+                const uid = playerUIDInput.value.trim();
+                const trxId = purchaseTrxIdInput.value.trim();
+
+                playerUIDInput.classList.remove('border-red-500');
+                purchaseTrxIdInput.classList.remove('border-red-500');
+
+                if (!selectedProduct) {
+                    alert('Please select a recharge option first.');
+                    return;
+                }
+
+                if (!uid || !trxId) {
+                    if (!uid) playerUIDInput.classList.add('border-red-500');
+                    if (!trxId) purchaseTrxIdInput.classList.add('border-red-500');
+                    alert('Please fill in all the required fields.');
+                    return;
+                }
+
+                const now = new Date();
+                const newOrder = {
+                    uid: uid,
+                    trxId: trxId,
+                    itemName: selectedProduct.name,
+                    itemPrice: selectedProduct.price,
+                    date: now.toLocaleDateString(),
+                    time: now.toLocaleTimeString(),
+                    id: now.getTime()
+                };
+
+                const existingOrders = JSON.parse(localStorage.getItem('purchaseOrders')) || [];
+                existingOrders.push(newOrder);
+                localStorage.setItem('purchaseOrders', JSON.stringify(existingOrders));
+
+                purchaseSection.classList.add('hidden');
+                purchaseSuccessMessage.classList.remove('hidden');
+                purchaseSuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                playerUIDInput.value = '';
+                purchaseTrxIdInput.value = '';
+                selectedProduct = null;
+                document.querySelectorAll('.recharge-item').forEach(el => el.classList.remove('selected-item'));
+            });
+        });
+    </script>
+</body>
+</html>
